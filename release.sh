@@ -1,3 +1,9 @@
+for f in $(find . -name "*.lua"); do
+    if [ $(cat $f | grep logger | grep -v "^ *--" | wc -l) -gt 0 ]; then
+        echo -e "Attention! There are loggers in the source code\n"
+        read
+    fi
+done
 VERSION="$(cat ESOAQR.txt  | grep "## Version:" | cut -d":" -f2 | xargs)"
 rm ESOAQR*.zip
 mkdir ESOAQR
