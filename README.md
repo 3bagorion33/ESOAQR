@@ -1,6 +1,6 @@
-### FishyQR
+### ESO Assistant QR
 
-FishyQR is an Addon for Elder Scrolls Online printing out miscellaneous data as QR Code.
+«ESO Assistant QR» is an Addon for Elder Scrolls Online printing out miscellaneous data as QR Code, forked from https://github.com/fishyboteso/FishyQR
 
 It employs the public lua library http://speedata.github.io/luaqrcode/ for qrcode generation.
 
@@ -14,8 +14,5 @@ The Elder Scrolls® and related logos are registered trademarks or trademarks of
 All rights reserved.
 
 ### Installation
-- Download "FishyQR.zip" from latest release
-- Unpack "FishyQR.zip" to: `C:\Users\<user>\Documents\Elder Scrolls Online\live\AddOns`
-### Settings
-
-![grafik](https://user-images.githubusercontent.com/1882648/218271631-a9f54ecd-3fe7-4acb-9f28-359ba43a2c6d.png)
+- Download "ESOAQR.zip" from latest release
+- Unpack "ESOAQR.zip" to: `C:\Users\<user>\Documents\Elder Scrolls Online\live\AddOns`

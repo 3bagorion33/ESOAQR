@@ -1,14 +1,14 @@
-FishyQR = {
-    name = "FishyQR",
+ESOAQR = {
+    name = "ESOAQR",
     author = "FishyESO"
 }
 
---local logger = LibDebugLogger(FishyQR.name)
+--local logger = LibDebugLogger(ESOAQR.name)
 local gps = LibGPS3
 
 --PARAMS:
-local FishyQRparams = {}
-local FishyQRdefaults = {
+local ESOAQRparams = {}
+local ESOAQRdefaults = {
     pixelsize    = 8,
     maxpixels    = 25,
     updatetime   = 500,
@@ -29,8 +29,8 @@ local dimY = 0
 
 --draw qr
 local function _drawQR(keyString)
-    local ui = FishyQR.UI
-    local maxpx = FishyQRparams.maxpixels
+    local ui = ESOAQR.UI
+    local maxpx = ESOAQRparams.maxpixels
 
     local ok, qrtable = qrcode(keyString)
     local tmpLastPixel = 0
@@ -76,11 +76,12 @@ local tmpKeyString = ""
 local function _generateQR()
     --get the gps values and form them to a string
     local x, y, zoneMapIndex = gps:LocalToGlobal(GetMapPlayerPosition("player"))
-    local angle = (math.deg(GetPlayerCameraHeading())-180) % 360
+    --local angle = (math.deg(GetPlayerCameraHeading())-180) % 360
+	local angle = 360 - math.deg(GetPlayerCameraHeading())
 
     -- add all data here
     -- if made changes to this, dont forget to update the parsing in qr_detection._parse_qr_code
-    local keyString = string.format("%f,%f,%d,%d", x, y, angle, FishyQR.engine:getState())
+    local keyString = string.format("%f,%f,%d,%d", x, y, angle, ESOAQR.engine:getState())
 
     --draw QRC with new location
     if tmpKeyString ~= keyString then
@@ -91,12 +92,12 @@ end
 
 
 local function _stopState()
-    local this = FishyQR
+    local this = ESOAQR
     local ui = this.UI
-    local maxpx = FishyQRparams.maxpixels
+    local maxpx = ESOAQRparams.maxpixels
 
-    ui.buttonLabel:SetText("↓")
-    ui.background:SetDimensions(dimX, text + brdr)
+    --ui.buttonLabel:SetText("↓")
+    ui.background:SetDimensions(0, 0)
 
     for i = 0,maxpx-1 do
         for j = 0,maxpx-1 do
@@ -113,11 +114,11 @@ end
 
 
 local function _startState()
-    local this = FishyQR
+    local this = ESOAQR
     local ui = this.UI
 
     ui.background:SetDimensions(dimX, dimY)
-    ui.buttonLabel:SetText("—")
+    --ui.buttonLabel:SetText("—")
 
     if ui.pixel ~= nil then
         tmpKeyString = ""
@@ -127,7 +128,7 @@ local function _startState()
     ui:SetDrawLayer(DL_MAX_VALUE-1)
     ui:SetDrawTier(DT_MAX_VALUE-1)
 
-    EVENT_MANAGER:RegisterForUpdate(this.name .. "generateQR", FishyQRparams.updatetime, _generateQR)
+    EVENT_MANAGER:RegisterForUpdate(this.name .. "generateQR", ESOAQRparams.updatetime, _generateQR)
     this.engine:registerOnStateChange(_generateQR)
 end
 
@@ -136,9 +137,9 @@ end
 local _hideOnSceneChange
 
 local function _update_state()
-    if FishyQR.running then
+    if ESOAQR.running then
         _startState()
-        if FishyQRparams.change_scene then
+        if ESOAQRparams.change_scene then
             HUD_SCENE:RegisterCallback("StateChange", _hideOnSceneChange)
         end
     else
@@ -149,7 +150,7 @@ end
 
 
 _hideOnSceneChange = function(oldState, newState)
-    local this = FishyQR
+    local this = ESOAQR
 
     if newState == SCENE_HIDDEN then
         if this.engine:getState() < this.engine.state.depleted or
@@ -164,7 +165,7 @@ end
 
 
 local function _enable_on_looking(state)
-    local this = FishyQR
+    local this = ESOAQR
 
     if state == this.engine.state.looking then
         this.engine:unregisterOnStateChange(_enable_on_looking)
@@ -174,23 +175,23 @@ local function _enable_on_looking(state)
 end
 
 
-function FishyQR.toggle_running_state()
-    local this = FishyQR
+function ESOAQR.toggle_running_state()
+    local this = ESOAQR
 
     this.running = not this.running
     _update_state()
 
-    if not this.running and FishyQRparams.enabled_on_looking then
+    if not this.running and ESOAQRparams.enabled_on_looking then
         this.engine:registerOnStateChange(_enable_on_looking)
     end
 end
 
 
 local function _createUI()
-    local this = FishyQR
+    local this = ESOAQR
     this.UI = WINDOW_MANAGER:CreateControl(nil, GuiRoot, CT_TOPLEVELCONTROL)
     local ui = this.UI
-    local params = FishyQRparams
+    local params = ESOAQRparams
 
     --create qr ui code elements
     dimX = brdr + params.maxpixels*params.pixelsize + brdr
@@ -214,21 +215,21 @@ local function _createUI()
     ui.background:SetHidden(false)
     ui.background:SetDrawLevel(0)
 
-    ui.label = WINDOW_MANAGER:CreateControl(this.name .. "label", ui, CT_LABEL)
-    ui.label:SetFont("ZoFontChat")
-    ui.label:SetColor(0,0,0)
-    ui.label:SetAnchor(TOP, ui.background, TOP, 0, 0)
-    ui.label:SetText("FishyQR")
+    --ui.label = WINDOW_MANAGER:CreateControl(this.name .. "label", ui, CT_LABEL)
+    --ui.label:SetFont("ZoFontChat")
+    --ui.label:SetColor(0,0,0)
+    --ui.label:SetAnchor(TOP, ui.background, TOP, 0, 0)
+    --ui.label:SetText("ESOAQR")
 
-    ui.buttonLabel = WINDOW_MANAGER:CreateControl(this.name .. "buttonLabel", ui, CT_LABEL)
-    ui.buttonLabel:SetFont("ZoFontChat")
-    ui.buttonLabel:SetColor(0,0,0)
-    ui.buttonLabel:SetAnchor(TOPRIGHT, ui.background, TOPRIGHT, -brdr, 0)
+    --ui.buttonLabel = WINDOW_MANAGER:CreateControl(this.name .. "buttonLabel", ui, CT_LABEL)
+    --ui.buttonLabel:SetFont("ZoFontChat")
+    --ui.buttonLabel:SetColor(0,0,0)
+    --ui.buttonLabel:SetAnchor(TOPRIGHT, ui.background, TOPRIGHT, -brdr, 0)
 
     ui.button = WINDOW_MANAGER:CreateControl(this.name .. "button", ui, CT_BUTTON)
     ui.button:SetDimensions(text, text)
     ui.button:SetAnchor(TOPRIGHT, ui.background, TOPRIGHT, -brdr, 0)
-    ui.button:SetHandler("OnClicked", FishyQR.toggle_running_state)
+    ui.button:SetHandler("OnClicked", ESOAQR.toggle_running_state)
 
     ui.pixel = {}
     for i = 0,params.maxpixels-1 do
@@ -251,9 +252,9 @@ end
 
 
 function _createMenu()
-    local this = FishyQR
+    local this = ESOAQR
     local ui = this.UI
-    local params = FishyQRparams
+    local params = ESOAQRparams
 
     --#region addon menu
     --addon menu
@@ -273,7 +274,7 @@ function _createMenu()
             default = true,
             getFunc = function() return params.run_var end,
             setFunc = function(value) params.run_var = value end,
-            tooltip = "If enabled FishyQR will start immediately, when the game is loaded.",
+            tooltip = "If enabled ESOAQR will start immediately, when the game is loaded.",
         },
         {
             type = "checkbox",
@@ -291,7 +292,7 @@ function _createMenu()
                 end
                 _update_state()
             end,
-            tooltip = "If enabled FishyQR will hide when a menu is opened.",
+            tooltip = "If enabled ESOAQR will hide when a menu is opened.",
         },
         {
             type = "checkbox",
@@ -306,7 +307,7 @@ function _createMenu()
                     this.engine:unregisterOnStateChange(_enable_on_looking)
                 end
             end,
-            tooltip = "If enabled FishyQR will automatically start when the player is looking at a fishing hole.",
+            tooltip = "If enabled ESOAQR will automatically start when the player is looking at a fishing hole.",
         },
         {
             type = "slider",
@@ -355,30 +356,30 @@ function _createMenu()
         }
     }
     LAM:RegisterOptionControls(panelName, optionsData)
-    ZO_CreateStringId("SI_BINDING_NAME_FISHYQRTOGGLE", "Toggle FishyQR")
+    ZO_CreateStringId("SI_BINDING_NAME_ESOAQRTOGGLE", "Toggle ESO Assistant QR")
     --#endregion
 end
 
 
 -- INIT -----------------------------
 local function _onAddOnLoaded(event, addonName)
-    if addonName == FishyQR.name then
+    if addonName == ESOAQR.name then
         --init once and never come here again
-        EVENT_MANAGER:UnregisterForEvent(FishyQR.name, EVENT_ADD_ON_LOADED)
+        EVENT_MANAGER:UnregisterForEvent(ESOAQR.name, EVENT_ADD_ON_LOADED)
 
         --load params variable
-        FishyQRparams = ZO_SavedVars:NewAccountWide("FishyQRparamsvar", 2, nil, FishyQRdefaults)
+        ESOAQRparams = ZO_SavedVars:NewAccountWide("ESOAQRparamsvar", 2, nil, ESOAQRdefaults)
 
         --init chalutier
-        FishyQR.engine = FishingStateMachine
+        ESOAQR.engine = FishingStateMachine
 
-        FishyQR.running = FishyQRparams.run_var
+        ESOAQR.running = ESOAQRparams.run_var
 
         _createUI()
         _createMenu()
 
-        if FishyQRparams.enabled_on_looking then
-            FishyQR.engine:registerOnStateChange(_enable_on_looking)
+        if ESOAQRparams.enabled_on_looking then
+            ESOAQR.engine:registerOnStateChange(_enable_on_looking)
         end
 
         _update_state()
@@ -386,4 +387,4 @@ local function _onAddOnLoaded(event, addonName)
 end
 
 
-EVENT_MANAGER:RegisterForEvent(FishyQR.name, EVENT_ADD_ON_LOADED, _onAddOnLoaded)
+EVENT_MANAGER:RegisterForEvent(ESOAQR.name, EVENT_ADD_ON_LOADED, _onAddOnLoaded)
