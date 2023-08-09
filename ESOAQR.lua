@@ -9,14 +9,14 @@ local gps = LibGPS3
 --PARAMS:
 local ESOAQRparams = {}
 local ESOAQRdefaults = {
-    pixelsize    = 8,
+    pixelsize    = 16,
     maxpixels    = 25,
-    updatetime   = 500,
+    updatetime   = 20,
     posx         = 0,
     posy         = 0,
     run_var      = false,
-    change_scene = true,
-    enabled_on_looking = true
+    change_scene = false,
+    enabled_on_looking = false
 }
 
 local brdr = 10
@@ -271,7 +271,7 @@ function _createMenu()
         {
             type = "checkbox",
             name = "Start State",
-            default = true,
+            default = false,
             getFunc = function() return params.run_var end,
             setFunc = function(value) params.run_var = value end,
             tooltip = "If enabled ESOAQR will start immediately, when the game is loaded.",
@@ -279,7 +279,7 @@ function _createMenu()
         {
             type = "checkbox",
             name = "Hide On Scene Change",
-            default = true,
+            default = false,
             getFunc = function() return params.change_scene end,
             setFunc = function(value)
                 params.change_scene = value
@@ -297,7 +297,7 @@ function _createMenu()
         {
             type = "checkbox",
             name = "Enable when looking at a fishing hole",
-            default = true,
+            default = false,
             getFunc = function() return params.enabled_on_looking end,
             setFunc = function(value)
                 params.enabled_on_looking = value
@@ -335,9 +335,9 @@ function _createMenu()
             type = "slider",
             name = "Updatetime",
             min = 0,
-            max = 1500,
-            step = 10,
-            default = 150,
+            max = 100,
+            step = 5,
+            default = 20,
             getFunc = function() return params.updatetime end,
             setFunc = function(value)
                 EVENT_MANAGER:UnregisterForUpdate(this.name .. "generateQR")
