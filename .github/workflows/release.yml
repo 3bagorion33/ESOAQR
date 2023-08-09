@@ -1,0 +1,44 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up config
+      run: |
+        echo "RELEASE_TAG=$(cat release_config.yml | grep RELEASE_TAG | cut -d ' ' -f2)" >> $GITHUB_ENV
+        echo "RELEASE_NAME=$(cat release_config.yml | grep RELEASE_NAME | cut -d ' ' -f2)" >> $GITHUB_ENV
+        echo "RELEASE_DESCRIPTION=$(cat release_config.yml | grep RELEASE_DESCRIPTION | cut -d ' ' -f2)" >> $GITHUB_ENV
+        echo "RELEASE_FILENAME=$(cat release_config.yml | grep RELEASE_FILENAME | cut -d ' ' -f2)" >> $GITHUB_ENV
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        release_name: ${{ env.RELEASE_NAME }}
+        body: ${{ env.RELEASE_DESCRIPTION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.RELEASE_FILENAME }}
+        asset_name: ${{ env.RELEASE_FILENAME }}
+        asset_content_type: application/zip
